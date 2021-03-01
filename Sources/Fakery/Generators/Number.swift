@@ -14,7 +14,12 @@ extension Faker {
     public func randomInt(min: Int = 0, max: Int = 1000) -> Int {
       var rand: Int = 0
       #if swift(>=4.2)
-      rand = Int.random(in: rand..<Int.max)
+      if Config.seed != nil {
+          let smax: Double = Double(max)
+          rand = Int((drand48() * smax).truncatingRemainder(dividingBy: smax))
+      } else {
+        rand = Int.random(in: rand..<Int.max)
+      }
       #else
       arc4random_buf(&rand, MemoryLayout.size(ofValue: rand))
       rand = rand & Int.max // Make the number positive

@@ -37,8 +37,15 @@ public final class Parser {
 
     if let value = keyData as? String {
       parsed = value
-    } else if let array = keyData as? [String], let item = array.random() {
-      parsed = item
+    } else if let array = keyData as? [String] {
+        if Config.seed != nil {
+            let count: Double = Double(array.count)
+            let index = Int((drand48() * count).truncatingRemainder(dividingBy: count))
+            parsed = array[index]
+            
+        } else if let item = array.random() {
+            parsed = item
+        }
     }
 
     if parsed.range(of: "#{") != nil {

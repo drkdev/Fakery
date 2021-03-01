@@ -29,7 +29,13 @@ extension Faker {
 
       return String(string.enumerated().map { (index, item) in
         #if swift(>=4.2)
-        let numberIndex = index == 0 ? UInt32.random(in: 0..<(count - 1)) : UInt32.random(in: 0..<count)
+        var numberIndex: UInt32 = 0
+        if Config.seed != nil {
+            let smax: Double = index == 0 ? Double(count - 1) : Double(count)
+            numberIndex = UInt32((drand48() * smax).truncatingRemainder(dividingBy: smax))
+        } else {
+            numberIndex = index == 0 ? UInt32.random(in: 0..<(count - 1)) : UInt32.random(in: 0..<count)
+        }
         #else
         let numberIndex = index == 0 ? arc4random_uniform(count - 1) : arc4random_uniform(count)
         #endif

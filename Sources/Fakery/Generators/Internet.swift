@@ -8,7 +8,13 @@ extension Faker {
 
     public func username(separator: String? = nil) -> String {
       #if swift(>=4.2)
-      let lastRandomComponent = Int.random(in: 0..<10000)
+      var lastRandomComponent = 0
+      if Config.seed != nil {
+        let smax: Double = Double(10000)
+        lastRandomComponent = Int((drand48() * smax).truncatingRemainder(dividingBy: smax))
+      } else {
+        lastRandomComponent = Int.random(in: 0..<10000)
+      }
       #else
       let lastRandomComponent = arc4random_uniform(10000)
       #endif
@@ -20,7 +26,13 @@ extension Faker {
 
       let randomCount = components.count - 1
       #if swift(>=4.2)
-      let count = Int.random(in: 0..<randomCount) + randomCount
+      var count = 0
+      if Config.seed != nil {
+        let smax: Double = Double(randomCount)
+        count = Int((drand48() * smax).truncatingRemainder(dividingBy: smax)) + randomCount
+      } else {
+        count = Int.random(in: 0..<randomCount) + randomCount
+      }
       #else
       let count = Int(arc4random_uniform(UInt32(randomCount)) + UInt32(randomCount))
       #endif
@@ -30,9 +42,12 @@ extension Faker {
         gap = sep
       }
 
-      return components[0..<count].joined(separator: gap)
-                                  .replacingOccurrences(of: "'", with: "")
-                                  .lowercased()
+        let string =  components[0..<count].joined(separator: gap)
+            .replacingOccurrences(of: "'", with: "")
+            .replacingOccurrences(of: " ", with: "")
+            .lowercased()
+
+        return string.folding(options: .diacriticInsensitive, locale: .current)
     }
 
     public func domainName(_ alphaNumericOnly: Bool = true) -> String {
